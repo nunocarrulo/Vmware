@@ -1,4 +1,10 @@
 class Snapshot:
+	""" Class Snapshot contains brief information about a snapshot
+
+	Returns:
+		[type]: [description]
+	"""	"""[summary]
+	"""
 	def __init__(self, name='', desc='', age=0):
 		self._name = name
 		self._description = desc
@@ -34,7 +40,8 @@ class Snapshot:
 		return snapDet
 
 class VM:
-    
+	""" Class VM contains brief VM information as well as a list of Snapshots
+	"""
 	def __init__(self, name='', host='', ds='', snapList=[]):
 		self._name = name
 		self._host = host

@@ -10,28 +10,28 @@ import pyVmomi, sys, re, os
 
 
 def initVars():
-	"""Var initialization"""
+	"""[Main variable initialisation]
+	"""
 	global now, targetAge, vcDict
 	now = mktime(datetime.utcnow().timetuple())	#Obtain today's date and time
 	targetAge = 0
 	vcDict = {}
+	myadmin=mypwd=''
 
 def main():
 	initVars(); 						# Global Vars
 	vcList = parseVCList();				# Parse VC/ESXi List
-	obtainCreds();						# Obtain Credentials
+	myadmin,mypwd = obtainCreds();		# Obtain Credentials
 	targetAge = obtainSnapTargetAge()	#Obtain min snapshot age to collect
 	
 	# For each VC/Host find VMs and its snapshots
 	for myvc in vcList:
-		vmList = []			#new VM List per VC/ESXi
+		vmList = []			# new VM List per VC/ESXi
 		try:
-			client = openConnection(myvc)	#Open VC Connection
-			vms = client.get_vm_view() 			#Obtain VMs
-			globals.hostReport+='-'+myvc+' OK!\n'
-
+			client,vms = openConnection(myvc,myadmin,mypwd)	#Open VC Connection
 			print("Connected to VC/ESXi: %s" % (myvc))
-			# Verify snapshot presence for each VM and print report of those exceeding 4 days
+			
+			# Verify each VM for snapshots, move on if no snapshots
 			for currVM in vms.view:
 				print("-%s" % (currVM.name))
 				if not currVM.snapshot:   #If no snaphots move on
@@ -49,11 +49,10 @@ def main():
 			globals.hostReport+='-'+myvc+' NOT OK!\n'
 			continue
 		
-		vcDict [myvc] = vmList	#  Create dictionary entry for new vCenter
+		vcDict [myvc] = vmList	# Create dictionary entry for new vCenter
 		client.disconnect()   	# Close VC connection
 		print("\nConnection to VC/ESXi %s closed" % myvc)
 	
-	#print("Dictionary size %d" % (len(vcDict)))
 	genSnapReport(vcDict); #Print report to screen with oldVMs only
 	print ("\nAll the following devices have been processed\n"+globals.hostReport)
 
